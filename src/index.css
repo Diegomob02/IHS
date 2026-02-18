@@ -1,0 +1,28 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+
+    --color-primary: 113 47 52;
+    --color-primary-foreground: 255 255 255;
+    --color-background: 245 241 236;
+    --color-accent: 229 166 99;
+    --color-accent-foreground: 44 44 44;
+    --color-text-main: 44 44 44;
+    --color-text-secondary: 107 107 107;
+    --color-muted: 245 245 245;
+    --color-muted-foreground: 107 107 107;
+    --color-border: 230 221 212;
+  }
+  
+  body {
+    @apply bg-background text-text-main font-sans antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-bold tracking-tight text-primary;
+  }
+}

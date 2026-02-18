@@ -1,0 +1,277 @@
+export type TooltipHelp = {
+  title: string;
+  purpose: string;
+  accepted: string;
+  impact: string;
+  restrictions?: string;
+  examples?: string[];
+};
+
+export const TOOLTIP_HELP: Record<string, TooltipHelp> = {
+  'superadmin.propertyBilling.billingMode': {
+    title: 'Modalidad de cobro',
+    purpose: 'Define si el cobro es automático (suscripción) o manual, y cómo se decide la moneda en modo inteligente.',
+    accepted: 'fixed | variable | intelligent',
+    impact: 'Cambia el tipo de cobro que se genera en Stripe y cómo se registra/espera el pago mes a mes.',
+    restrictions: 'Cambiar la moneda de una suscripción existente puede requerir recrearla (Stripe no siempre permite migración de moneda).',
+    examples: ['fixed: cargo recurrente mensual', 'variable: se paga mes a mes manualmente', 'intelligent: USD si mercado >= tasa fija; si no, MXN con tasa fija'],
+  },
+  'superadmin.propertyBilling.planId': {
+    title: 'Plan',
+    purpose: 'Selecciona el plan aplicado a la propiedad para determinar reglas y etiquetas del cobro.',
+    accepted: 'Uno de los planes disponibles en el sistema.',
+    impact: 'Afecta el monto objetivo y la forma en que se describe el cobro en Stripe y en reportes.',
+  },
+  'superadmin.propertyBilling.chargeCurrency': {
+    title: 'Moneda de cobro',
+    purpose: 'Selecciona la moneda en la que Stripe hará el cargo al cliente (cuando no se usa modo inteligente).',
+    accepted: 'usd | mxn',
+    impact: 'Determina el currency del Price en Stripe y la cantidad que verá el cliente.',
+    restrictions: 'Si ya existe una suscripción activa en otra moneda, puede requerir cancelar y recrear.',
+    examples: ['usd: cliente paga $900 USD', 'mxn: cliente paga equivalente en MXN según tasa fija'],
+  },
+  'superadmin.propertyBilling.depositPct': {
+    title: 'Depósito (%)',
+    purpose: 'Define un depósito inicial como porcentaje del primer mes.',
+    accepted: 'Número entre 0 y 1 (ej. 0.2 = 20%).',
+    impact: 'Incrementa el primer cobro (o genera un cobro inicial) según el contrato.',
+    restrictions: 'Si se define un depósito fijo en USD (override), ese valor tiene prioridad.',
+    examples: ['0.2 → depósito equivalente al 20% del primer mes'],
+  },
+  'superadmin.propertyBilling.depositRequiredUsd': {
+    title: 'Depósito fijo (USD)',
+    purpose: 'Fija el depósito inicial en USD, ignorando el porcentaje.',
+    accepted: 'Número >= 0 (USD).',
+    impact: 'Hace que el depósito sea una cantidad exacta en USD independientemente del %.',
+    examples: ['100 → depósito fijo de $100 USD'],
+  },
+  'superadmin.propertyBilling.longTermMonths': {
+    title: 'Compromiso (meses)',
+    purpose: 'Registra el compromiso acordado en el contrato (para descuentos o penalizaciones).',
+    accepted: 'Entero >= 0.',
+    impact: 'Puede habilitar descuentos por permanencia y se refleja en el contrato.',
+    examples: ['6 → compromiso mínimo 6 meses'],
+  },
+  'superadmin.propertyBilling.discountPct': {
+    title: 'Descuento (%)',
+    purpose: 'Aplica un descuento al monto mensual según el contrato.',
+    accepted: 'Número entre 0 y 0.5 (ej. 0.1 = 10%).',
+    impact: 'Reduce el monto objetivo del cobro mensual.',
+    examples: ['0.1 → 10% de descuento'],
+  },
+  'admin.property.title': {
+    title: 'Nombre de la propiedad',
+    purpose: 'Identifica la propiedad en el sistema y en reportes.',
+    accepted: 'Texto no vacío.',
+    impact: 'Afecta listados, búsquedas y descripciones.',
+    examples: ['Villa Paraíso'],
+  },
+  'admin.property.address': {
+    title: 'Dirección',
+    purpose: 'Ubicación de la propiedad para operación y reportes.',
+    accepted: 'Texto no vacío.',
+    impact: 'Se muestra en dashboards y reportes.',
+  },
+  'admin.property.ownerEmail': {
+    title: 'Email del propietario',
+    purpose: 'Vincula la propiedad con el usuario propietario.',
+    accepted: 'Email válido.',
+    impact: 'Determina qué usuario verá la propiedad y quién puede pagar.',
+    restrictions: 'Si cambias el email, cambia el vínculo de acceso del propietario.',
+  },
+  'admin.property.assignedAdmin': {
+    title: 'Administrador asignado',
+    purpose: 'Define quién gestiona la operación/seguimiento de esta propiedad.',
+    accepted: 'Un usuario con rol admin/super_admin o vacío.',
+    impact: 'Afecta KPIs y asignaciones internas.',
+  },
+  'admin.property.monthlyFee': {
+    title: 'Costo mensual (USD)',
+    purpose: 'Monto mensual que se usará para cobro/fees de la propiedad.',
+    accepted: 'Número >= 0 (USD).',
+    impact: 'Afecta el cálculo del cobro mensual y reportes.',
+    restrictions: 'Puede requerir permisos especiales para edición.',
+    examples: ['900 → $900 USD/mes'],
+  },
+  'admin.property.contractStatus': {
+    title: 'Estado de contrato',
+    purpose: 'Controla si el propietario puede realizar pagos.',
+    accepted: 'pending | signed | active | expired',
+    impact: 'Solo permite pago cuando está en signed/active.',
+    examples: ['signed: listo para cobrar', 'expired: bloquear pagos'],
+  },
+  'admin.user.name': {
+    title: 'Nombre completo',
+    purpose: 'Nombre visible del usuario en el panel y asignaciones.',
+    accepted: 'Texto no vacío.',
+    impact: 'Se muestra en listados, asignaciones y auditoría.',
+  },
+  'admin.user.email': {
+    title: 'Email',
+    purpose: 'Identificador del usuario para acceso y vínculos (propiedades/permisos).',
+    accepted: 'Email válido.',
+    impact: 'Determina el login y relaciones con datos (propiedades, cobros).',
+    restrictions: 'Cambiarlo puede romper vínculos si otros datos usan el email.',
+  },
+  'admin.user.role': {
+    title: 'Rol',
+    purpose: 'Define el nivel de acceso del usuario dentro del sistema.',
+    accepted: 'owner | tenant | admin | super_admin',
+    impact: 'Cambia permisos, secciones disponibles y capacidad de editar datos.',
+    restrictions: 'Requiere permisos para gestionar roles; úsalo con precaución.',
+  },
+  'admin.user.phone': {
+    title: 'Teléfono',
+    purpose: 'Dato de contacto opcional.',
+    accepted: 'Texto (recomendado formato internacional).',
+    impact: 'Puede usarse para notificaciones/contacto.',
+    examples: ['+1 555 123 4567'],
+  },
+  'admin.user.perm.can_edit_fees': {
+    title: 'Editar cobros',
+    purpose: 'Permite editar montos de mensualidad/cobros en propiedades.',
+    accepted: 'Activado / Desactivado',
+    impact: 'Habilita edición de tarifas y afecta el cálculo de cobros.',
+  },
+  'admin.user.perm.can_assign_leads': {
+    title: 'Asignar leads',
+    purpose: 'Permite asignar clientes/leads a administradores.',
+    accepted: 'Activado / Desactivado',
+    impact: 'Habilita reasignación y distribución de trabajo en CRM.',
+  },
+  'admin.user.perm.can_manage_roles': {
+    title: 'Gestionar roles',
+    purpose: 'Permite cambiar roles y permisos de otros usuarios.',
+    accepted: 'Activado / Desactivado',
+    impact: 'Afecta seguridad del sistema; otorga capacidades administrativas.',
+    restrictions: 'Otórgalo solo a personal de confianza.',
+  },
+  'superadmin.company.company_name': {
+    title: 'Nombre comercial',
+    purpose: 'Nombre público de la empresa mostrado en portales y documentos.',
+    accepted: 'Texto no vacío.',
+    impact: 'Se refleja en cabeceras, reportes y comunicaciones.',
+    examples: ['Integrated Home Solutions'],
+  },
+  'superadmin.company.company_legal_name': {
+    title: 'Nombre legal',
+    purpose: 'Nombre fiscal/razón social para facturación y documentos legales.',
+    accepted: 'Texto (opcional).',
+    impact: 'Aparece en documentos legales cuando aplica.',
+  },
+  'superadmin.company.email': {
+    title: 'Email de contacto',
+    purpose: 'Correo oficial para notificaciones y contacto.',
+    accepted: 'Email válido.',
+    impact: 'Se usa como remitente/recipiente en flujos de contacto y soporte.',
+  },
+  'superadmin.company.phone': {
+    title: 'Teléfono',
+    purpose: 'Número público para contacto y soporte.',
+    accepted: 'Texto (recomendado formato internacional).',
+    impact: 'Se muestra en el sitio/portal y se usa en comunicaciones.',
+    examples: ['+52 624 179 3231'],
+  },
+  'superadmin.company.address': {
+    title: 'Dirección fiscal',
+    purpose: 'Dirección para documentos y cumplimiento.',
+    accepted: 'Texto.',
+    impact: 'Se muestra en reportes/documentos cuando aplica.',
+  },
+  'superadmin.company.website': {
+    title: 'Sitio web',
+    purpose: 'URL pública de la empresa.',
+    accepted: 'URL válida (https://...).',
+    impact: 'Se muestra en el sitio/portal y firmas de comunicación.',
+    examples: ['https://ihscabo.com'],
+  },
+  'superadmin.whatsapp.enabled': {
+    title: 'Habilitar integración',
+    purpose: 'Activa/desactiva el uso de WhatsApp en automatizaciones y mensajería.',
+    accepted: 'Activado / Desactivado',
+    impact: 'Si está desactivado, no se enviarán mensajes ni se ejecutarán pruebas operativas.',
+  },
+  'superadmin.whatsapp.wabaId': {
+    title: 'WABA ID',
+    purpose: 'Identificador de tu cuenta de WhatsApp Business en Meta.',
+    accepted: 'String numérico provisto por Meta.',
+    impact: 'Se usa para validar y operar la integración.',
+    restrictions: 'Debe corresponder al mismo Business/Phone configurado.',
+  },
+  'superadmin.whatsapp.phoneNumberId': {
+    title: 'Phone Number ID',
+    purpose: 'Identificador del número de WhatsApp dentro de Meta.',
+    accepted: 'String numérico provisto por Meta.',
+    impact: 'Determina desde qué número se enviarán mensajes.',
+  },
+  'superadmin.whatsapp.accessToken': {
+    title: 'Access Token',
+    purpose: 'Token de acceso para llamar a la API de WhatsApp Cloud.',
+    accepted: 'Token válido (secreto).',
+    impact: 'Sin token válido, no se pueden enviar mensajes ni probar conexión.',
+    restrictions: 'No compartir; rotar si se expone.',
+  },
+  'superadmin.whatsapp.verifyToken': {
+    title: 'Verify Token',
+    purpose: 'Token usado para validar webhooks entrantes (si aplica).',
+    accepted: 'Texto (secreto compartido).',
+    impact: 'Si no coincide, los webhooks pueden fallar verificación.',
+  },
+  'superadmin.whatsapp.templatesJson': {
+    title: 'Plantillas (JSON)',
+    purpose: 'Define plantillas/mensajes disponibles para automatización.',
+    accepted: 'JSON válido.',
+    impact: 'Controla qué mensajes se pueden enviar y con qué parámetros.',
+    examples: ['{"welcome": {"name": "..."}}'],
+  },
+  'superadmin.whatsapp.autoReply': {
+    title: 'Auto-respuesta inicial',
+    purpose: 'Envía una respuesta automática al recibir un contacto inicial (si está habilitado).',
+    accepted: 'Activado / Desactivado',
+    impact: 'Puede mejorar tiempos de respuesta; úsalo con cuidado para evitar spam.',
+  },
+  'superadmin.n8n.enabled': {
+    title: 'Habilitar integración',
+    purpose: 'Activa/desactiva el envío de eventos hacia n8n.',
+    accepted: 'Activado / Desactivado',
+    impact: 'Si está desactivado, no se disparan automatizaciones en n8n.',
+  },
+  'superadmin.n8n.baseUrl': {
+    title: 'Base URL',
+    purpose: 'URL base de tu instancia de n8n.',
+    accepted: 'URL válida (https://...).',
+    impact: 'Se usa para pruebas y llamadas a la API.',
+    examples: ['https://n8n.tu-dominio.com'],
+  },
+  'superadmin.n8n.apiKey': {
+    title: 'API Key',
+    purpose: 'Clave para autenticar llamadas a n8n (si aplica).',
+    accepted: 'Texto (secreto).',
+    impact: 'Sin API key, algunas operaciones pueden fallar si tu n8n la requiere.',
+    restrictions: 'No compartir; rotar si se expone.',
+  },
+  'superadmin.n8n.webhookUrl': {
+    title: 'Webhook URL',
+    purpose: 'Endpoint de n8n que recibe eventos desde el sistema.',
+    accepted: 'URL válida (https://...).',
+    impact: 'Se usa para disparar automatizaciones (ej. reportes, alerts).',
+  },
+  'superadmin.brand.logo': {
+    title: 'Logo corporativo',
+    purpose: 'Imagen usada en portales y para sugerir una paleta de colores.',
+    accepted: 'PNG/JPG/SVG (recomendado fondo transparente).',
+    impact: 'Actualiza la identidad visual; puede afectar contraste y legibilidad.',
+    restrictions: 'Evita archivos muy pesados; usa proporción horizontal si es posible.',
+  },
+  'superadmin.brand.palette': {
+    title: 'Paleta de colores',
+    purpose: 'Colores globales que se aplican a los portales (botones, fondos, textos).',
+    accepted: 'HEX #RRGGBB.',
+    impact: 'Afecta la UI completa; colores con poco contraste pueden reducir legibilidad.',
+    restrictions: 'Procura contraste suficiente (WCAG 2.1 AA) para texto sobre fondos.',
+  },
+};
+
+export const getTooltipHelp = (id: string): TooltipHelp | null => {
+  return TOOLTIP_HELP[id] ?? null;
+};
